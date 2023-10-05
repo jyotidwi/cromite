@@ -39,7 +39,6 @@ webRTC-do-not-expose-local-IP-addresses.patch
 Never-fetch-popular-sites.patch
 ungoogled-chromium-Disable-webRTC-log-uploader.patch
 ungoogled-chromium-Disable-untraceable-URLs.patch
-ungoogled-chromium-Disable-translate-integration.patch
 ungoogled-chromium-Disable-profile-avatar.patch
 ungoogled-chromium-Disable-intranet-detector.patch
 ungoogled-chromium-no-special-hosts-domains.patch
@@ -79,7 +78,6 @@ Do-not-build-API-keys-infobar.patch
 autofill-miscellaneous.patch
 Enable-native-Android-autofill.patch
 first_run-deactivate-autoupdate-globally.patch
-translate-disable-fetching-of-languages-from-server.patch
 Offer-builtin-autocomplete-for-chrome-flags.patch
 Use-4-tile-rows-never-show-logo.patch
 Disable-various-metrics.patch
