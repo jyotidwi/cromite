@@ -1,7 +1,7 @@
 name: Release Cromite CI
 permissions:
   contents: write
-      
+
 on:
   workflow_dispatch:
     inputs:
@@ -13,26 +13,28 @@ on:
         description: 'runner? [dev/ci]'
         required: true
         default: 'ci'
-        
+
 env:
   BROMITE_SHA: ${{ github.event.inputs.sha }}
   REMOVEDOCKERSUPPORT: true
   USELOCALIMAGE: true
-  
+
 jobs:
   release:
     runs-on: ${{ github.event.inputs.type }}
     env:
+      OUTPUTFILE_ARM: /storage/images/${{ github.event.inputs.sha }}/android/false/arm/
       OUTPUTFILE_ARM64: /storage/images/${{ github.event.inputs.sha }}/android/false/arm64/
       OUTPUTFILE_X64: /storage/images/${{ github.event.inputs.sha }}/android/false/x64/
-        
+      OUTPUTFILE_WIN: /storage/images/${{ github.event.inputs.sha }}/win/x64/
+
     steps:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: Prepare container
         run: |
           wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
@@ -49,11 +51,10 @@ jobs:
             repository: 'uazo/cromite'
             path: 'cromite'
             fetch-depth: 1
-            
+
       - name: Create release
         shell: bash
-        run: |
-          WINOUT=/storage/images/$BROMITE_SHA/win/x64/
+        run: |          
           VERSION=v$(cat ${{ env.OUTPUTFILE_ARM64 }}/RELEASE)
 
           cd cromite/tools
@@ -61,7 +62,7 @@ jobs:
           GH=gh_2.21.1_linux_amd64/bin/gh
           wget https://github.com/cli/cli/releases/download/v2.21.1/gh_2.21.1_linux_amd64.tar.gz
           tar xfz gh_2.21.1_linux_amd64.tar.gz
-          
+
           echo ${{ secrets.GITHUB_TOKEN }} | $GH auth login --with-token
 
           echo "\`\`\`" >note
@@ -70,6 +71,14 @@ jobs:
           echo "\`\`\`" >>note
 
           $GH release create $VERSION-$BROMITE_SHA --notes-file note -d
+
+          # android arm
+          echo "::group::-------- android arm"
+          sudo cp ${{ env.OUTPUTFILE_ARM }}/apks/ChromePublic.apk arm_ChromePublic.apk
+          sudo chown runner arm_ChromePublic.apk
+          echo Uploading arm_ChromePublic
+          $GH release upload $VERSION-$BROMITE_SHA arm_ChromePublic.apk
+          echo "::endgroup::"
 
           # android arm64
           echo "::group::-------- android arm64"
@@ -97,7 +106,7 @@ jobs:
           $GH release upload $VERSION-$BROMITE_SHA arm64_ChromePublic.apk.mapping
           sudo cp ${{ env.OUTPUTFILE_X64 }}/apks/ChromePublic.apk.mapping x64_ChromePublic.apk.mapping
           $GH release upload $VERSION-$BROMITE_SHA x64_ChromePublic.apk.mapping
-          echo "::endgroup::"          
+          echo "::endgroup::"
 
           echo "::group::-------- Uploading arm64_ninja_log_trace.html"
           test $OUTPUTFILE_ARM64/ninja_log_trace.html && \
@@ -105,57 +114,56 @@ jobs:
             $GH release upload $VERSION-$BROMITE_SHA arm64_ninja_log_trace.html
           echo "::endgroup::"
 
-          
-
-          echo "::group::-------- windows"
+          # windows x64
+          echo "::group::-------- windows x64"
           mkdir chrome-win/
-          cp $WINOUT/*.manifest chrome-win/
-          cp $WINOUT/chrome.dll chrome-win/
-          cp $WINOUT/chrome.exe chrome-win/
-          cp $WINOUT/chrome_100_percent.pak chrome-win/
-          cp $WINOUT/chrome_200_percent.pak chrome-win/
-          cp $WINOUT/chrome_elf.dll chrome-win/
-          cp $WINOUT/chrome_proxy.exe chrome-win/
-          cp $WINOUT/chrome_pwa_launcher.exe chrome-win/
-          cp $WINOUT/chrome_wer.dll chrome-win/
+          cp $OUTPUTFILE_WIN/*.manifest chrome-win/
+          cp $OUTPUTFILE_WIN/chrome.dll chrome-win/
+          cp $OUTPUTFILE_WIN/chrome.exe chrome-win/
+          cp $OUTPUTFILE_WIN/chrome_100_percent.pak chrome-win/
+          cp $OUTPUTFILE_WIN/chrome_200_percent.pak chrome-win/
+          cp $OUTPUTFILE_WIN/chrome_elf.dll chrome-win/
+          cp $OUTPUTFILE_WIN/chrome_proxy.exe chrome-win/
+          cp $OUTPUTFILE_WIN/chrome_pwa_launcher.exe chrome-win/
+          cp $OUTPUTFILE_WIN/chrome_wer.dll chrome-win/
           cp "/win_sdk/10.0.22621.0/Windows Kits/10/Redist/D3D/x64/d3dcompiler_47.dll" chrome-win/
-          cp $WINOUT/elevation_service.exe chrome-win/
-          cp "$WINOUT/First Run" chrome-win/
-          cp $WINOUT/headless_lib_data.pak chrome-win/
-          cp $WINOUT/icudtl.dat chrome-win/
-          cp $WINOUT/libEGL.dll chrome-win/
-          cp $WINOUT/libGLESv2.dll chrome-win/
-          cp $WINOUT/Logo.png chrome-win/
-          cp $WINOUT/mojo_core.dll chrome-win/
-          cp $WINOUT/notification_helper.exe chrome-win/
-          cp $WINOUT/resources.pak chrome-win/
-          cp $WINOUT/SmallLogo.png chrome-win/
-          cp $WINOUT/snapshot_blob.bin chrome-win/
-          cp $WINOUT/VkICD_mock_icd.dll chrome-win/
-          cp $WINOUT/VkLayer_khronos_validation.dll chrome-win/
-          cp $WINOUT/vk_swiftshader.dll chrome-win/
-          cp $WINOUT/vulkan-1.dll chrome-win/
-          cp -r $WINOUT/locales chrome-win/locales
+          cp $OUTPUTFILE_WIN/elevation_service.exe chrome-win/
+          cp "$OUTPUTFILE_WIN/First Run" chrome-win/
+          cp $OUTPUTFILE_WIN/headless_lib_data.pak chrome-win/
+          cp $OUTPUTFILE_WIN/icudtl.dat chrome-win/
+          cp $OUTPUTFILE_WIN/libEGL.dll chrome-win/
+          cp $OUTPUTFILE_WIN/libGLESv2.dll chrome-win/
+          cp $OUTPUTFILE_WIN/Logo.png chrome-win/
+          cp $OUTPUTFILE_WIN/mojo_core.dll chrome-win/
+          cp $OUTPUTFILE_WIN/notification_helper.exe chrome-win/
+          cp $OUTPUTFILE_WIN/resources.pak chrome-win/
+          cp $OUTPUTFILE_WIN/SmallLogo.png chrome-win/
+          cp $OUTPUTFILE_WIN/snapshot_blob.bin chrome-win/
+          cp $OUTPUTFILE_WIN/VkICD_mock_icd.dll chrome-win/
+          cp $OUTPUTFILE_WIN/VkLayer_khronos_validation.dll chrome-win/
+          cp $OUTPUTFILE_WIN/vk_swiftshader.dll chrome-win/
+          cp $OUTPUTFILE_WIN/vulkan-1.dll chrome-win/
+          cp -r $OUTPUTFILE_WIN/locales chrome-win/locales
 
           #test chrome-win.zip && rm chrome-win.zip
           zip -r chrome-win.zip chrome-win/
-          
+
           echo Uploading chrome-win.zip
           $GH release upload $VERSION-$BROMITE_SHA chrome-win.zip
           echo "::endgroup::"
-          
+
           echo "::group::-------- arm64 symbols"
           zip arm64_symbols.zip ${{ env.OUTPUTFILE_ARM64 }}/dump_syms \
                                 ${{ env.OUTPUTFILE_ARM64 }}/minidump_stackwalk \
                                 ${{ env.OUTPUTFILE_ARM64 }}/libchrome.so
           $GH release upload $VERSION-$BROMITE_SHA arm64_symbols.zip
           echo "::endgroup::"
-          
+
           # workaround for https://github.com/cli/cli/issues/6599
           sleep 30s
 
           TIMESTAMP=$(date +%s -r chrome-win.zip)
-          echo >updateurl.txt "browser=chromium;os=windows;architecture=64-bit;timestamp=$TIMESTAMP;editor=uazo;channel=stable;repository=https://github.com/uazo/cromite/releases;download=https://github.com/uazo/cromite/releases/latest/download/chrome-win.zip;version=$(cat $WINOUT/RELEASE);revision=1;commit=$BROMITE_SHA"
+          echo >updateurl.txt "browser=chromium;os=windows;architecture=64-bit;timestamp=$TIMESTAMP;editor=uazo;channel=stable;repository=https://github.com/uazo/cromite/releases;download=https://github.com/uazo/cromite/releases/latest/download/chrome-win.zip;version=$(cat $OUTPUTFILE_WIN/RELEASE);revision=1;commit=$BROMITE_SHA"
           $GH release upload $VERSION-$BROMITE_SHA updateurl.txt
 
           $GH release edit $VERSION-$BROMITE_SHA -t $VERSION-$BROMITE_SHA

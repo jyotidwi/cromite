@@ -598,7 +598,7 @@ Based on Chromium 117.0.5938.0
 diff --git a/DEPS b/DEPS
 --- a/DEPS
 +++ b/DEPS
-@@ -182,6 +182,10 @@ vars = {
+@@ -186,6 +186,10 @@ vars = {
    # flag is set True.
    'checkout_wpr_archives': False,
  
@@ -609,7 +609,7 @@ diff --git a/DEPS b/DEPS
    # By default, do not check out WebKit for iOS, as it is not needed unless
    # running against ToT WebKit rather than system WebKit. This can be overridden
    # e.g. with custom_vars.
-@@ -296,6 +300,8 @@ vars = {
+@@ -300,6 +304,8 @@ vars = {
    'download_libaom_testdata': False,
  
    'android_git': 'https://android.googlesource.com',
@@ -618,7 +618,7 @@ diff --git a/DEPS b/DEPS
    'aomedia_git': 'https://aomedia.googlesource.com',
    'boringssl_git': 'https://boringssl.googlesource.com',
    'chrome_git': 'https://chrome-internal.googlesource.com',
-@@ -515,6 +521,11 @@ vars = {
+@@ -523,6 +529,11 @@ vars = {
    # and whatever else without interference from each other.
    'betocore_revision': 'b902b346037ea3f4aadf8177021f6f917b16e648',
  
@@ -630,7 +630,7 @@ diff --git a/DEPS b/DEPS
    # If you change this, also update the libc++ revision in
    # //buildtools/deps_revisions.gni.
    'libcxx_revision':       '84fb809dd6dae36d556dc0bb702c6cc2ce9d4b80',
-@@ -841,6 +852,10 @@ deps = {
+@@ -853,6 +864,10 @@ deps = {
      'condition': 'checkout_android and checkout_src_internal',
    },
  
@@ -639,9 +639,9 @@ diff --git a/DEPS b/DEPS
 +  },
 +
    'src/docs/website': {
-     'url': Var('chromium_git') + '/website.git' + '@' + 'd1599568a4f463bb9e1bbccd9088f01d8ecafefc',
+     'url': Var('chromium_git') + '/website.git' + '@' + '243c1406199960e001e1dceccafc6fc2db6897f9',
    },
-@@ -990,6 +1005,13 @@ deps = {
+@@ -1002,6 +1017,13 @@ deps = {
        'dep_type': 'cipd',
    },
  
@@ -773,7 +773,7 @@ diff --git a/components/BUILD.gn b/components/BUILD.gn
      "//components/aggregation_service:unit_tests",
      "//components/apdu:unit_tests",
      "//components/assist_ranker:unit_tests",
-@@ -338,6 +349,7 @@ test("components_unittests") {
+@@ -339,6 +350,7 @@ test("components_unittests") {
  
    if (use_blink) {
      deps += [
@@ -781,7 +781,7 @@ diff --git a/components/BUILD.gn b/components/BUILD.gn
        "//components/autofill/content/browser:unit_tests",
        "//components/autofill/content/renderer:unit_tests",
        "//components/autofill/core/common/mojom:unit_tests",
-@@ -1067,6 +1079,9 @@ if (use_blink) {
+@@ -1072,6 +1084,9 @@ if (use_blink) {
  
      deps = [
        "//base",
@@ -154805,7 +154805,7 @@ diff --git a/content/browser/loader/navigation_url_loader_impl.cc b/content/brow
  #include "content/browser/loader/navigation_url_loader_impl.h"
  
  #include <map>
-@@ -990,7 +994,7 @@ void NavigationURLLoaderImpl::OnReceiveRedirect(
+@@ -992,7 +996,7 @@ void NavigationURLLoaderImpl::OnReceiveRedirect(
    LogQueueTimeHistogram("Navigation.QueueTime.OnReceiveRedirect",
                          resource_request_->is_outermost_main_frame);
    net::Error error = net::OK;
@@ -154828,7 +154828,7 @@ diff --git a/content/browser/renderer_host/render_frame_host_impl.cc b/content/b
  
  #include "content/browser/renderer_host/render_frame_host_impl.h"
  
-@@ -2637,6 +2641,12 @@ void RenderFrameHostImpl::ExecuteJavaScriptMethod(
+@@ -2668,6 +2672,12 @@ void RenderFrameHostImpl::ExecuteJavaScriptMethod(
        std::move(callback));
  }
  
@@ -154841,7 +154841,7 @@ diff --git a/content/browser/renderer_host/render_frame_host_impl.cc b/content/b
  void RenderFrameHostImpl::ExecuteJavaScript(const std::u16string& javascript,
                                              JavaScriptResultCallback callback) {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
-@@ -11146,7 +11156,6 @@ bool RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryInternal(
+@@ -11319,7 +11329,6 @@ bool RenderFrameHostImpl::CreateNetworkServiceDefaultFactoryInternal(
  
    GetProcess()->CreateURLLoaderFactory(std::move(default_factory_receiver),
                                         std::move(params));
@@ -154863,7 +154863,7 @@ diff --git a/content/browser/renderer_host/render_frame_host_impl.h b/content/br
  
  #ifndef CONTENT_BROWSER_RENDERER_HOST_RENDER_FRAME_HOST_IMPL_H_
  #define CONTENT_BROWSER_RENDERER_HOST_RENDER_FRAME_HOST_IMPL_H_
-@@ -438,6 +442,10 @@ class CONTENT_EXPORT RenderFrameHostImpl
+@@ -439,6 +443,10 @@ class CONTENT_EXPORT RenderFrameHostImpl
                                 const std::u16string& method_name,
                                 base::Value::List arguments,
                                 JavaScriptResultCallback callback) override;
@@ -154888,7 +154888,7 @@ diff --git a/content/public/browser/render_frame_host.h b/content/public/browser
  
  #ifndef CONTENT_PUBLIC_BROWSER_RENDER_FRAME_HOST_H_
  #define CONTENT_PUBLIC_BROWSER_RENDER_FRAME_HOST_H_
-@@ -502,6 +506,9 @@ class CONTENT_EXPORT RenderFrameHost : public IPC::Listener,
+@@ -510,6 +514,9 @@ class CONTENT_EXPORT RenderFrameHost : public IPC::Listener,
    virtual void AddMessageToConsole(blink::mojom::ConsoleMessageLevel level,
                                     const std::string& message) = 0;
  
@@ -155052,7 +155052,7 @@ diff --git a/third_party/blink/public/mojom/frame/frame.mojom b/third_party/blin
  
  module blink.mojom;
  
-@@ -899,6 +903,10 @@ interface LocalFrame {
+@@ -914,6 +918,10 @@ interface LocalFrame {
    // the given point in the view coordinate space.
    PluginActionAt(gfx.mojom.Point location, blink.mojom.PluginActionType action);
  
@@ -155175,7 +155175,7 @@ diff --git a/third_party/blink/renderer/core/frame/local_frame_mojo_handler.cc b
  
  #include "third_party/blink/renderer/core/frame/local_frame_mojo_handler.h"
  
-@@ -357,6 +361,14 @@ LocalFrameMojoHandler::LocalFrameMojoHandler(blink::LocalFrame& frame)
+@@ -358,6 +362,14 @@ LocalFrameMojoHandler::LocalFrameMojoHandler(blink::LocalFrame& frame)
        WrapWeakPersistent(this)));
  }
  
@@ -155249,9 +155249,9 @@ diff --git a/tools/gritsettings/resource_ids.spec b/tools/gritsettings/resource_
  # This file is used to assign starting resource ids for resources and strings
  # used by Chromium.  This is done to ensure that resource ids are unique
  # across all the grd files.  If you are adding a new grd file, please add
-@@ -635,6 +639,10 @@
-     "META": {"sizes": {"includes": [20]}},
-     "includes": [4960],
+@@ -651,6 +655,10 @@
+     "META": {"sizes": {"includes": [10]}},
+     "includes": [4980],
    },
 +  "<(SHARED_INTERMEDIATE_DIR)/chrome/browser/resources/adblock_internals/resources.grd": {
 +    "META": {"sizes": {"includes": [10],}},

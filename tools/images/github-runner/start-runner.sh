@@ -2,7 +2,11 @@
 
 docker stop gh-proxy
 
-GHRUNNERHOME=~/gh-runner
+if [ -z "$GHRUNNERHOME" ]; then
+   echo "Variable GHRUNNERHOME is empty"
+	 echo "   example: GHRUNNERHOME=/home/xxxx/gh-runner/docker-inner/"
+	 exit 1
+fi
 sudo rm -rf $GHRUNNERHOME/tmp
 
 SYSBOX_UID=$(cat /etc/subuid | grep sysbox | cut -d : -f 2)
@@ -21,9 +25,9 @@ docker run --rm -d --runtime=sysbox-runc \
   -e "REMOTEEXEC_ADDR=$REMOTEEXEC_ADDR" \
   -v $GHRUNNERHOME/tmp/proxy:/tmp/proxy:rw \
   -v $GHRUNNERHOME/tmp/forward-proxy:/tmp/forward-proxy:rw \
-  uazo/squid
-
-docker logs gh-proxy
+  uazo/squid && \
+  docker logs gh-proxy && \
+  sleep 30s
 
 while true
 do
@@ -40,7 +44,7 @@ do
     -v /casefold:/win_sdk \
     --network none \
     --device=/dev/kvm \
-    uazo/github-runner:2.308.0
+    uazo/github-runner:2.310.0
 
   echo "You can stop now"
   sleep 5s
